@@ -1,0 +1,68 @@
+# Environment files
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Output files
+test_output/
+error/
+out/
+
+# OneDrive (don't push local paths)
+*OneDrive*
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# CSV data files (keep mappings, exclude error logs)
+sit_errors_*.csv
+sit_contact_errors_*.csv
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Oracle Wallet
+cwallet.sso
+ewallet.p12
+tnsnames.ora
+sqlnet.ora

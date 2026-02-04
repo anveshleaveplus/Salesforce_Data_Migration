@@ -1,0 +1,7 @@
+oracledb
+simple-salesforce
+python-dotenv
+pandas
+rapidfuzz
+tqdm
+pyyaml

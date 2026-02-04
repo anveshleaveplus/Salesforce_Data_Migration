@@ -1,0 +1,11 @@
+Oracle_Table,Oracle_Field,Oracle_Type,SF_Object,SF_Field,SF_Type,Transformation,Sample_Values,Notes,Field_Type
+SCH_CO_20.CO_EMPLOYER,CUSTOMER_ID,NUMBER,Account,External_Id__c,Text(18),Direct mapping - unique identifier,"1, 1001, 1005, 10032",External ID for upsert operations,Newly Added
+SCH_CO_20.CO_EMPLOYER,ORGANISATION_NAME,VARCHAR2,Account,RegisteredEntityName__c,Text(255),Direct mapping,"LeavePlus Ltd, VAN DRIEL AUST P/L",Official registered name,Newly Added
+SCH_CO_20.CO_EMPLOYER,TRADING_AS_NAME,VARCHAR2,Account,TradingAs__c,Text(255),Direct mapping,"LeavePlus Ltd, VAUGHAN CONSTRUCTIONS",Trading name,Newly Added
+SCH_CO_20.CO_EMPLOYER,ORGANISATION_NAME + TRADING_AS_NAME,VARCHAR2,Account,Name,Text(255),ORGANISATION_NAME || ' - ' || TRADING_AS_NAME,LeavePlus Ltd - LeavePlus Ltd,Composite name for display,Standard (Read-Only)
+SCH_CO_20.CO_EMPLOYER,AUSTRALIAN_BUSINESS_NUMBER,NUMBER,Account,ABN__c,Text(11),"LPAD(AUSTRALIAN_BUSINESS_NUMBER, 11, '0')","26004334543, 18167292408",11-digit ABN with leading zeros,Newly Added
+SCH_CO_20.CO_EMPLOYER,AUSTRALIAN_COMPANY_NUMBER,NUMBER,Account,ACN__c,Text(9),"LPAD(AUSTRALIAN_COMPANY_NUMBER, 9, '0')","004334543, 45435",9-digit ACN with leading zeros,Newly Added
+SCH_CO_20.CO_EMPLOYER,CUSTOMER_ID,NUMBER,Account,Registration_Number__c,Text(18),TO_CHAR(CUSTOMER_ID),"1, 1001, 1005",Registration number (same as External ID),Newly Added
+SCH_CO_20.CO_EMPLOYER,FIRST_EMPLOYED_WORKERS_DATE,DATE,Account,DateEmploymentCommenced__c,Date,"TO_CHAR(FIRST_EMPLOYED_WORKERS_DATE, 'YYYY-MM-DD')","1977-11-18, 1978-01-01",Date first employed workers,Newly Added
+SCH_CO_20.CO_EMPLOYER_TYPE,EMPLOYER_TYPE_CODE,VARCHAR2,Account,Type,Picklist,"Lookup: 01=Company, 02=Trust, 03=Sole Trader","Company, Trust, Sole Trader",Mapped from CO_EMPLOYER_TYPE lookup,Standard (Read-Only)
+SCH_CO_20.CO_SERVICE,PERIOD_END,NUMBER,Account,N/A - Filter Only,N/A,WHERE EXISTS (SELECT 1 FROM CO_SERVICE WHERE PERIOD_END >= 202301),"202301, 202401",Filter: Only employers with service records >= Jan 2023,Filter Criteria

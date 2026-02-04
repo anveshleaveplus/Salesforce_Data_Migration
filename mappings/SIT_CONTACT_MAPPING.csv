@@ -1,0 +1,9 @@
+Oracle_Table,Oracle_Column,Salesforce_Object,Salesforce_Field,Notes
+CO_WORKER,CUSTOMER_ID,Contact,External_Id__c,Unique identifier - maps to Worker ID
+CO_PERSON,FIRST_NAME,Contact,FirstName,Worker's first name
+CO_PERSON,SURNAME,Contact,LastName,Worker's surname
+CO_PERSON,DATE_OF_BIRTH,Contact,Birthdate,Worker's date of birth
+CO_CUSTOMER,EMAIL_ADDRESS,Contact,Email,Primary email address
+CO_CUSTOMER,TELEPHONE1_NO,Contact,OtherPhone,Landline/other phone number
+CO_CUSTOMER,MOBILE_PHONE_NO,Contact,MobilePhone,Mobile phone number
+CO_EMPLOYMENT_PERIOD,EMPLOYER_ID,Contact,AccountId,Links Contact to Account (employer) - Conditional: Only set if changed to prevent duplicate ACR errors

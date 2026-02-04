@@ -1,0 +1,9 @@
+Oracle_Table,Oracle_Column,Salesforce_Object,Salesforce_Field,Notes
+CO_EMPLOYER,CUSTOMER_ID,Account,External_Id__c,Primary key / External ID for upsert
+CO_EMPLOYER,CUSTOMER_ID,Account,Registration_Number__c,Duplicate of CUSTOMER_ID for registration number
+CO_EMPLOYER,ABN,Account,ABN__c,Australian Business Number
+CO_EMPLOYER,ACN,Account,ACN__c,Australian Company Number
+CO_EMPLOYER,TRADING_NAME,Account,Name,Primary account name
+CO_EMPLOYER,TRADING_NAME,Account,RegisteredEntityName__c,Registered entity name (duplicate of TRADING_NAME)
+CO_EMPLOYER,TRADING_NAME,Account,TradingAs__c,Trading as name (duplicate of TRADING_NAME)
+CO_WSR_SERVICE,EMPLOYMENT_START_DATE,Account,DateEmploymentCommenced__c,Employment start date from WSR service
