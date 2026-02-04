@@ -31,16 +31,21 @@ wheels/
 .vscode/
 *.code-workspace
 
-# Output files
+# Output files - all test output and error directories
 test_output/
 error/
 out/
+output/
+logs/
 
 # OneDrive (don't push local paths)
 *OneDrive*
 
-# Logs
+# Logs - all log files
 *.log
+*.log.*
+*.out
+*.err
 
 # OS files
 .DS_Store
@@ -53,16 +58,50 @@ desktop.ini
 *.swp
 *~
 
-# CSV data files (keep mappings, exclude error logs)
+# CSV error and output files
 sit_errors_*.csv
 sit_contact_errors_*.csv
+sit_*_errors_*.csv
+*_errors_*.csv
+*_reconciliation_*.csv
+*_test_results_*.csv
+*_samples_*.txt
+*_field_analysis_*.csv
 
 # Jupyter Notebook
 .ipynb_checkpoints
 *.ipynb
 
-# Oracle Wallet
+# Oracle Wallet and credentials
 cwallet.sso
 ewallet.p12
 tnsnames.ora
 sqlnet.ora
+
+# Salesforce credentials
+*.wsdl
+partner.xml
+
+# Database dumps
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+
+# Excel files (generated reports)
+*.xlsx
+*.xls
+
+# Compiled files
+*.pyc
+*.pyo
+*.pyd
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# IDE
+.idea/
+*.iml
