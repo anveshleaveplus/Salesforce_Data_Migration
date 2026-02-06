@@ -2,6 +2,7 @@ oracledb
 simple-salesforce
 python-dotenv
 pandas
+pyodbc
 rapidfuzz
 tqdm
 pyyaml

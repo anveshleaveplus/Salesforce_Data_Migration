@@ -1,0 +1,14 @@
+Oracle_Table,Oracle_Field,Oracle_Type,SF_Object,SF_Field,SF_Type,Transformation,Sample_Values,Notes,Field_Type
+SCH_CO_20.CO_EMPLOYER,CUSTOMER_ID,NUMBER,Account,External_Id__c,Text(18),Direct mapping - unique identifier,"1, 1001, 1005, 10032",External ID for upsert operations,Newly Added
+SCH_CO_20.CO_EMPLOYER,TRADING_NAME,VARCHAR2,Account,RegisteredEntityName__c,Text(255),Direct mapping,"RENIER HENDRIK OOSTVEEN, NORTWIN NOMINEES PTY LTD",Uses TRADING_NAME (duplicate of Name),Newly Added
+SCH_CO_20.CO_EMPLOYER,TRADING_NAME,VARCHAR2,Account,TradingAs__c,Text(255),Direct mapping,"RENIER HENDRIK OOSTVEEN, NORTWIN NOMINEES PTY LTD",Uses TRADING_NAME (duplicate of Name),Newly Added
+SCH_CO_20.CO_EMPLOYER,TRADING_NAME,VARCHAR2,Account,Name,Text(255),Direct mapping,"RENIER HENDRIK OOSTVEEN, NORTWIN NOMINEES PTY LTD",Primary account name from TRADING_NAME,Standard (Read-Only)
+SCH_CO_20.CO_EMPLOYER,ABN,VARCHAR2,Account,ABN__c,Text(11),Direct mapping,"26004334543, 18167292408",Australian Business Number,Newly Added
+SCH_CO_20.CO_EMPLOYER,ACN,VARCHAR2,Account,ACN__c,Text(9),Direct mapping,"004334543, 45435",Australian Company Number,Newly Added
+SCH_CO_20.CO_EMPLOYER,CUSTOMER_ID,NUMBER,Account,Registration_Number__c,Text(18),TO_CHAR(CUSTOMER_ID),"1, 1001, 1005",Registration number (same as External ID),Newly Added
+SCH_CO_20.CO_WSR_SERVICE,EMPLOYMENT_START_DATE,DATE,Account,DateEmploymentCommenced__c,Date,Direct mapping from joined table,"1977-11-18, 1978-01-01",Employment start date from CO_WSR_SERVICE (LEFT JOIN),Newly Added
+SCH_CO_20.CO_EMPLOYER_TYPE,EMPLOYER_TYPE_CODE,VARCHAR2,Account,Type,Picklist,"Lookup: 01=Company, 02=Trust, 03=Sole Trader","Company, Trust, Sole Trader",Mapped from CO_EMPLOYER_TYPE lookup,Standard (Read-Only)
+SCH_CO_20.CO_SERVICE,PERIOD_END,NUMBER,Account,N/A - Filter Only,N/A,WHERE EXISTS (SELECT 1 FROM CO_SERVICE WHERE PERIOD_END >= 202301),"202301, 202401",Filter: Only employers with service records >= Jan 2023,Filter Criteria
+SQL Server: AvatarWarehouse.datascience.abr_cleaned,ABN Registration - Date of Effect,DATE,Account,ABNRegistrationDate__c,Date,Direct mapping from SQL Server,"2000-01-15, 2005-06-20",ABN registration effective date (SQL Server: cosql-test.coinvest.com.au),Newly Added
+SQL Server: AvatarWarehouse.datascience.abr_cleaned,ABN Status,VARCHAR,Account,AccountStatus__c,Picklist,"Mapped from SQL Server (Active->Registered, Cancelled->Cancelled)","Registered, Cancelled",ABN status from SQL Server (cosql-test.coinvest.com.au),Newly Added
+SQL Server: AvatarWarehouse.datascience.abr_cleaned,Main - Industry Class Code,VARCHAR,Account,OSCACode__c,Text,Direct mapping from SQL Server (converted to string),"3000, 4100, 4500",ANZSIC industry class code from SQL Server (cosql-test.coinvest.com.au),Newly Added

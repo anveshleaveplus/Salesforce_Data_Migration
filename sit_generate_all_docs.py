@@ -56,62 +56,62 @@ mappings = [
     },
     {
         'Oracle_Table': 'SCH_CO_20.CO_EMPLOYER',
-        'Oracle_Field': 'ORGANISATION_NAME',
+        'Oracle_Field': 'TRADING_NAME',
         'Oracle_Type': 'VARCHAR2',
         'SF_Object': 'Account',
         'SF_Field': 'RegisteredEntityName__c',
         'SF_Type': 'Text(255)',
         'Transformation': 'Direct mapping',
-        'Sample_Values': 'LeavePlus Ltd, VAN DRIEL AUST P/L',
-        'Notes': 'Official registered name',
+        'Sample_Values': 'RENIER HENDRIK OOSTVEEN, NORTWIN NOMINEES PTY LTD',
+        'Notes': 'Uses TRADING_NAME (duplicate of Name)',
         'Field_Type': 'Newly Added'
     },
     {
         'Oracle_Table': 'SCH_CO_20.CO_EMPLOYER',
-        'Oracle_Field': 'TRADING_AS_NAME',
+        'Oracle_Field': 'TRADING_NAME',
         'Oracle_Type': 'VARCHAR2',
         'SF_Object': 'Account',
         'SF_Field': 'TradingAs__c',
         'SF_Type': 'Text(255)',
         'Transformation': 'Direct mapping',
-        'Sample_Values': 'LeavePlus Ltd, VAUGHAN CONSTRUCTIONS',
-        'Notes': 'Trading name',
+        'Sample_Values': 'RENIER HENDRIK OOSTVEEN, NORTWIN NOMINEES PTY LTD',
+        'Notes': 'Uses TRADING_NAME (duplicate of Name)',
         'Field_Type': 'Newly Added'
     },
     {
         'Oracle_Table': 'SCH_CO_20.CO_EMPLOYER',
-        'Oracle_Field': 'ORGANISATION_NAME + TRADING_AS_NAME',
+        'Oracle_Field': 'TRADING_NAME',
         'Oracle_Type': 'VARCHAR2',
         'SF_Object': 'Account',
         'SF_Field': 'Name',
         'SF_Type': 'Text(255)',
-        'Transformation': 'ORGANISATION_NAME || \' - \' || TRADING_AS_NAME',
-        'Sample_Values': 'LeavePlus Ltd - LeavePlus Ltd',
-        'Notes': 'Composite name for display',
+        'Transformation': 'Direct mapping',
+        'Sample_Values': 'RENIER HENDRIK OOSTVEEN, NORTWIN NOMINEES PTY LTD',
+        'Notes': 'Primary account name from TRADING_NAME',
         'Field_Type': 'Standard (Read-Only)'
     },
     {
         'Oracle_Table': 'SCH_CO_20.CO_EMPLOYER',
-        'Oracle_Field': 'AUSTRALIAN_BUSINESS_NUMBER',
-        'Oracle_Type': 'NUMBER',
+        'Oracle_Field': 'ABN',
+        'Oracle_Type': 'VARCHAR2',
         'SF_Object': 'Account',
         'SF_Field': 'ABN__c',
         'SF_Type': 'Text(11)',
-        'Transformation': 'LPAD(AUSTRALIAN_BUSINESS_NUMBER, 11, \'0\')',
+        'Transformation': 'Direct mapping',
         'Sample_Values': '26004334543, 18167292408',
-        'Notes': '11-digit ABN with leading zeros',
+        'Notes': 'Australian Business Number',
         'Field_Type': 'Newly Added'
     },
     {
         'Oracle_Table': 'SCH_CO_20.CO_EMPLOYER',
-        'Oracle_Field': 'AUSTRALIAN_COMPANY_NUMBER',
-        'Oracle_Type': 'NUMBER',
+        'Oracle_Field': 'ACN',
+        'Oracle_Type': 'VARCHAR2',
         'SF_Object': 'Account',
         'SF_Field': 'ACN__c',
         'SF_Type': 'Text(9)',
-        'Transformation': 'LPAD(AUSTRALIAN_COMPANY_NUMBER, 9, \'0\')',
+        'Transformation': 'Direct mapping',
         'Sample_Values': '004334543, 45435',
-        'Notes': '9-digit ACN with leading zeros',
+        'Notes': 'Australian Company Number',
         'Field_Type': 'Newly Added'
     },
     {
@@ -127,15 +127,147 @@ mappings = [
         'Field_Type': 'Newly Added'
     },
     {
-        'Oracle_Table': 'SCH_CO_20.CO_EMPLOYER',
-        'Oracle_Field': 'FIRST_EMPLOYED_WORKERS_DATE',
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS (joined via CO_CUSTOMER.ADDRESS_ID)',
+        'Oracle_Field': 'STREET, STREET2',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Account',
+        'SF_Field': 'BillingStreet',
+        'SF_Type': 'Text Area (255)',
+        'Transformation': 'Concatenate STREET + STREET2 (if exists) from registered address',
+        'Sample_Values': '343 Dogwood St, 222 Hickory St Level 10 2 Chifley Sq',
+        'Notes': 'Registered office street address (99.4% populated)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS (joined via CO_CUSTOMER.ADDRESS_ID)',
+        'Oracle_Field': 'SUBURB',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Account',
+        'SF_Field': 'BillingCity',
+        'SF_Type': 'Text (40)',
+        'Transformation': 'Direct mapping from SUBURB to City',
+        'Sample_Values': 'Colac, Bowral, Sydney',
+        'Notes': 'Registered office suburb mapped to City field (99.4% populated)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS (joined via CO_CUSTOMER.ADDRESS_ID)',
+        'Oracle_Field': 'STATE',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Account',
+        'SF_Field': 'BillingState',
+        'SF_Type': 'Text (80)',
+        'Transformation': 'Direct mapping',
+        'Sample_Values': 'NSW, VIC, QLD',
+        'Notes': 'Registered office state (99.4% populated)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS (joined via CO_CUSTOMER.ADDRESS_ID)',
+        'Oracle_Field': 'POSTCODE',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Account',
+        'SF_Field': 'BillingPostalCode',
+        'SF_Type': 'Text (20)',
+        'Transformation': 'Direct mapping',
+        'Sample_Values': '3125, 2000, 4000',
+        'Notes': 'Registered office postcode (99.4% populated)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS (joined via CO_CUSTOMER.ADDRESS_ID)',
+        'Oracle_Field': 'COUNTRY_CODE',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Account',
+        'SF_Field': 'BillingCountry',
+        'SF_Type': 'Text (80)',
+        'Transformation': 'Direct mapping',
+        'Sample_Values': 'AU',
+        'Notes': 'Registered office country code (99.4% populated)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_CUSTOMER',
+        'Oracle_Field': 'ADDRESS_ID vs POSTAL_ADDRESS_ID',
+        'Oracle_Type': 'NUMBER',
+        'SF_Object': 'Account',
+        'SF_Field': 'IsPostalAddressDifferent__c',
+        'SF_Type': 'Checkbox (Boolean)',
+        'Transformation': 'CASE WHEN POSTAL_ADDRESS_ID IS NOT NULL AND ADDRESS_ID != POSTAL_ADDRESS_ID THEN 1 ELSE 0',
+        'Sample_Values': 'true, false',
+        'Notes': 'Indicates if employer has different postal address (39.5% have different postal address)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS (joined via CO_CUSTOMER.POSTAL_ADDRESS_ID)',
+        'Oracle_Field': 'STREET, STREET2',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Account',
+        'SF_Field': 'ShippingStreet',
+        'SF_Type': 'Text Area (255)',
+        'Transformation': 'Concatenate STREET + STREET2 (if exists) from postal address',
+        'Sample_Values': '777 Sequoia Cir, 222 Oak Rd Level 10 2 Chifley Sq',
+        'Notes': 'Postal/mailing street address (41% have postal address)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS (joined via CO_CUSTOMER.POSTAL_ADDRESS_ID)',
+        'Oracle_Field': 'SUBURB',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Account',
+        'SF_Field': 'ShippingCity',
+        'SF_Type': 'Text (40)',
+        'Transformation': 'Direct mapping from SUBURB to City',
+        'Sample_Values': 'Armidale, Port Pirie, Bowral',
+        'Notes': 'Postal/mailing suburb mapped to City field (41% have postal address)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS (joined via CO_CUSTOMER.POSTAL_ADDRESS_ID)',
+        'Oracle_Field': 'STATE',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Account',
+        'SF_Field': 'ShippingState',
+        'SF_Type': 'Text (80)',
+        'Transformation': 'Direct mapping',
+        'Sample_Values': 'NSW, VIC, QLD',
+        'Notes': 'Postal/mailing state (41% have postal address)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS (joined via CO_CUSTOMER.POSTAL_ADDRESS_ID)',
+        'Oracle_Field': 'POSTCODE',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Account',
+        'SF_Field': 'ShippingPostalCode',
+        'SF_Type': 'Text (20)',
+        'Transformation': 'Direct mapping',
+        'Sample_Values': '2073, 3125, 2000',
+        'Notes': 'Postal/mailing postcode (41% have postal address)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS (joined via CO_CUSTOMER.POSTAL_ADDRESS_ID)',
+        'Oracle_Field': 'COUNTRY_CODE',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Account',
+        'SF_Field': 'ShippingCountry',
+        'SF_Type': 'Text (80)',
+        'Transformation': 'Direct mapping',
+        'Sample_Values': 'AU',
+        'Notes': 'Postal/mailing country code (41% have postal address)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_WSR_SERVICE',
+        'Oracle_Field': 'EMPLOYMENT_START_DATE',
         'Oracle_Type': 'DATE',
         'SF_Object': 'Account',
         'SF_Field': 'DateEmploymentCommenced__c',
         'SF_Type': 'Date',
-        'Transformation': 'TO_CHAR(FIRST_EMPLOYED_WORKERS_DATE, \'YYYY-MM-DD\')',
+        'Transformation': 'Direct mapping from joined table',
         'Sample_Values': '1977-11-18, 1978-01-01',
-        'Notes': 'Date first employed workers',
+        'Notes': 'Employment start date from CO_WSR_SERVICE (LEFT JOIN)',
         'Field_Type': 'Newly Added'
     },
     {
@@ -161,6 +293,42 @@ mappings = [
         'Sample_Values': '202301, 202401',
         'Notes': 'Filter: Only employers with service records >= Jan 2023',
         'Field_Type': 'Filter Criteria'
+    },
+    {
+        'Oracle_Table': 'SQL Server: AvatarWarehouse.datascience.abr_cleaned',
+        'Oracle_Field': 'ABN Registration - Date of Effect',
+        'Oracle_Type': 'DATE',
+        'SF_Object': 'Account',
+        'SF_Field': 'ABNRegistrationDate__c',
+        'SF_Type': 'Date',
+        'Transformation': 'Direct mapping from SQL Server',
+        'Sample_Values': '2000-01-15, 2005-06-20',
+        'Notes': 'ABN registration effective date (SQL Server: cosql-test.coinvest.com.au)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SQL Server: AvatarWarehouse.datascience.abr_cleaned',
+        'Oracle_Field': 'ABN Status',
+        'Oracle_Type': 'VARCHAR',
+        'SF_Object': 'Account',
+        'SF_Field': 'AccountStatus__c',
+        'SF_Type': 'Picklist',
+        'Transformation': 'Mapped from SQL Server (Active->Registered, Cancelled->Cancelled)',
+        'Sample_Values': 'Registered, Cancelled',
+        'Notes': 'ABN status from SQL Server (cosql-test.coinvest.com.au)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SQL Server: AvatarWarehouse.datascience.abr_cleaned',
+        'Oracle_Field': 'Main - Industry Class Code',
+        'Oracle_Type': 'VARCHAR',
+        'SF_Object': 'Account',
+        'SF_Field': 'OSCACode__c',
+        'SF_Type': 'Text',
+        'Transformation': 'Direct mapping from SQL Server (converted to string)',
+        'Sample_Values': '3000, 4100, 4500',
+        'Notes': 'ANZSIC industry class code from SQL Server (cosql-test.coinvest.com.au)',
+        'Field_Type': 'Newly Added'
     }
 ]
 
@@ -185,9 +353,12 @@ print("\n[2/5] Generating Sample Records (10 accounts)...")
 sample_query = """
 SELECT External_Id__c, Name, ABN__c, ACN__c, 
        RegisteredEntityName__c, TradingAs__c, 
-       Registration_Number__c, DateEmploymentCommenced__c, Type
+       Registration_Number__c, DateEmploymentCommenced__c, Type,
+       RegisteredOfficeAddress__c,
+       ABNRegistrationDate__c, AccountStatus__c, OSCACode__c
 FROM Account
-WHERE External_Id__c != null
+WHERE External_Id__c != null 
+  AND ABNRegistrationDate__c != null
 ORDER BY CreatedDate DESC
 LIMIT 10
 """
@@ -196,9 +367,10 @@ samples = sf.query(sample_query)
 sample_file = f'test_output/sit_account_samples_{timestamp}.txt'
 
 with open(sample_file, 'w', encoding='utf-8') as f:
-    f.write("SIT ACCOUNT LOAD - SAMPLE RECORDS\n")
+    f.write("SIT ACCOUNT LOAD - SAMPLE RECORDS (with SQL Server ABR enrichment)\n")
     f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
     f.write(f"Total Accounts in SIT: {sf.query('SELECT COUNT() FROM Account WHERE External_Id__c != null')['totalSize']:,}\n")
+    f.write(f"With SQL Server data: {sf.query('SELECT COUNT() FROM Account WHERE External_Id__c != null AND ABNRegistrationDate__c != null')['totalSize']:,}\n")
     f.write("="*80 + "\n\n")
     
     for i, rec in enumerate(samples['records'], 1):
@@ -211,8 +383,13 @@ with open(sample_file, 'w', encoding='utf-8') as f:
         f.write(f"RegisteredEntityName__c:      {rec.get('RegisteredEntityName__c', 'NULL')}\n")
         f.write(f"TradingAs__c:                 {rec.get('TradingAs__c', 'NULL')}\n")
         f.write(f"Registration_Number__c:       {rec.get('Registration_Number__c', 'NULL')}\n")
+        f.write(f"RegisteredOfficeAddress__c:   {rec.get('RegisteredOfficeAddress__c', 'NULL')}\n")
         f.write(f"DateEmploymentCommenced__c:   {rec.get('DateEmploymentCommenced__c', 'NULL')}\n")
         f.write(f"Type:                         {rec.get('Type', 'NULL')}\n")
+        f.write(f"\n-- SQL Server ABR Fields --\n")
+        f.write(f"ABNRegistrationDate__c:       {rec.get('ABNRegistrationDate__c', 'NULL')}\n")
+        f.write(f"AccountStatus__c:             {rec.get('AccountStatus__c', 'NULL')}\n")
+        f.write(f"OSCACode__c:                  {rec.get('OSCACode__c', 'NULL')}\n")
         f.write("\n")
 
 print(f"   ✅ Saved: {sample_file}")

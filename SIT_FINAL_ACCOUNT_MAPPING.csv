@@ -1,0 +1,9 @@
+﻿Salesforce_Field,Oracle_Table,Oracle_Column
+External_Id__c,CO_EMPLOYER,CUSTOMER_ID
+Registration_Number__c,CO_EMPLOYER,CUSTOMER_ID
+ABN__c,CO_EMPLOYER,ABN
+ACN__c,CO_EMPLOYER,ACN
+Name,CO_EMPLOYER,TRADING_NAME
+RegisteredEntityName__c,CO_EMPLOYER,TRADING_NAME
+TradingAs__c,CO_EMPLOYER,TRADING_NAME
+DateEmploymentCommenced__c,CO_WSR_SERVICE,EMPLOYMENT_START_DATE

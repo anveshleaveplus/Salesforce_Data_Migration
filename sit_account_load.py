@@ -7,6 +7,7 @@ Includes reconciliation report and data quality checks
 import os
 from dotenv import load_dotenv
 import oracledb
+import pyodbc
 import pandas as pd
 from simple_salesforce import Salesforce
 from datetime import datetime
@@ -123,11 +124,39 @@ SELECT * FROM (
         e.EMPLOYER_TYPE_CODE,
         es.EMPLOYER_REASON_CODE,
         es.EMPLOYER_STATUS_CODE,
+        TRIM(
+            COALESCE(addr.STREET, '') || 
+            CASE WHEN addr.STREET2 IS NOT NULL THEN ' ' || addr.STREET2 ELSE '' END
+        ) as BILLING_STREET,
+        addr.SUBURB as BILLING_CITY,
+        addr.STATE as BILLING_STATE,
+        addr.POSTCODE as BILLING_POSTCODE,
+        addr.COUNTRY_CODE as BILLING_COUNTRY,
+        CASE 
+            WHEN c.POSTAL_ADDRESS_ID IS NOT NULL 
+                AND c.ADDRESS_ID != c.POSTAL_ADDRESS_ID 
+            THEN 1 
+            ELSE 0 
+        END as IS_POSTAL_DIFFERENT,
+        TRIM(
+            COALESCE(postal_addr.STREET, '') || 
+            CASE WHEN postal_addr.STREET2 IS NOT NULL THEN ' ' || postal_addr.STREET2 ELSE '' END
+        ) as POSTAL_STREET,
+        postal_addr.SUBURB as POSTAL_CITY,
+        postal_addr.STATE as POSTAL_STATE,
+        postal_addr.POSTCODE as POSTAL_POSTCODE,
+        postal_addr.COUNTRY_CODE as POSTAL_COUNTRY,
         ROW_NUMBER() OVER (
             PARTITION BY e.CUSTOMER_ID 
             ORDER BY ws.EMPLOYMENT_START_DATE DESC NULLS LAST
         ) as rn
     FROM SCH_CO_20.CO_EMPLOYER e
+    LEFT JOIN SCH_CO_20.CO_CUSTOMER c
+        ON c.CUSTOMER_ID = e.CUSTOMER_ID
+    LEFT JOIN SCH_CO_20.CO_ADDRESS addr
+        ON addr.ADDRESS_ID = c.ADDRESS_ID
+    LEFT JOIN SCH_CO_20.CO_ADDRESS postal_addr
+        ON postal_addr.ADDRESS_ID = c.POSTAL_ADDRESS_ID
     LEFT JOIN SCH_CO_20.CO_WSR_SERVICE ws 
         ON ws.WSR_ID = e.CUSTOMER_ID
     LEFT JOIN SCH_CO_20.CO_EMPLOYER_STATUS es
@@ -160,6 +189,102 @@ except Exception as e:
     exit(1)
 
 # ============================================================================
+# 2.5. EXTRACT ABR DATA FROM SQL SERVER
+# ============================================================================
+print("\nStep 2.5: Extracting ABR data from SQL Server...")
+
+try:
+    # Connect to SQL Server using Windows Authentication
+    sql_server = 'cosql-test.coinvest.com.au'
+    database = 'AvatarWarehouse'
+    
+    conn_str = (
+        f'DRIVER={{ODBC Driver 17 for SQL Server}};'
+        f'SERVER={sql_server};'
+        f'DATABASE={database};'
+        f'Trusted_Connection=yes;'
+    )
+    
+    print(f"  Connecting to SQL Server: {sql_server}...")
+    sql_conn = pyodbc.connect(conn_str)
+    print("  [OK] SQL Server connection successful")
+    
+    # Extract ABR data - join on ABN (skip Industry_Class - values don't match SF picklist)
+    sql_query = """
+    SELECT 
+        CAST([Australian Business Number] AS VARCHAR) as ABN,
+        [ABN Registration - Date of Effect] as ABN_Registration_Date,
+        [ABN Status] as ABN_Status,
+        [Main - Industry Class Code] as Industry_Class_Code
+    FROM [datascience].[abr_cleaned]
+    WHERE [Australian Business Number] IS NOT NULL
+    """
+    
+    print("  Extracting ABR data...")
+    cursor = sql_conn.cursor()
+    cursor.execute(sql_query)
+    
+    # Fetch all records into list of dicts
+    abr_records = []
+    for row in cursor.fetchall():
+        abr_records.append({
+            'ABN': row[0],
+            'ABN_Registration_Date': row[1],
+            'ABN_Status': row[2],
+            'Industry_Class_Code': row[3]
+        })
+    
+    df_abr = pd.DataFrame(abr_records)
+    cursor.close()
+    sql_conn.close()
+    
+    print(f"  [OK] Extracted {len(df_abr):,} ABR records")
+    print(f"  ABR columns: {list(df_abr.columns)}")
+    
+    # Clean ABN for joining (remove spaces, ensure string format)
+    df_abr['ABN'] = df_abr['ABN'].astype(str).str.replace(' ', '').str.strip()
+    
+    # Oracle ABN is NUMBER(11) - convert to string, handle NaN
+    df_oracle['ABN_CLEAN'] = df_oracle['ABN'].apply(
+        lambda x: str(int(x)) if pd.notna(x) and x != '' else None
+    )
+    
+    # Left join Oracle data with SQL Server ABR data
+    df_oracle = df_oracle.merge(df_abr, left_on='ABN_CLEAN', right_on='ABN', how='left', suffixes=('', '_ABR'))
+    
+    # Map SQL Server ABN Status values to Salesforce picklist values
+    # SQL: "Active" → SF: "Registered"
+    # SQL: "Cancelled" → SF: "Cancelled" (same)
+    status_mapping = {
+        'Active': 'Registered',
+        'Cancelled': 'Cancelled'
+    }
+    df_oracle['ABN_Status'] = df_oracle['ABN_Status'].map(status_mapping)
+    
+    # Count successful matches
+    matched = df_oracle['ABN_Registration_Date'].notna().sum()
+    print(f"  [OK] Matched {matched:,} of {len(df_oracle):,} Oracle records ({matched/len(df_oracle)*100:.1f}%)")
+    print(f"  [OK] Mapped ABN Status values: Active to Registered, Cancelled to Cancelled")
+    
+    # Drop temporary join column
+    df_oracle = df_oracle.drop(columns=['ABN_CLEAN', 'ABN_ABR'], errors='ignore')
+    
+    # Replace NaN with None for SQL Server fields (to avoid JSON serialization errors)
+    sql_fields = ['ABN_Registration_Date', 'ABN_Status', 'Industry_Class_Code']
+    for field in sql_fields:
+        if field in df_oracle.columns:
+            df_oracle[field] = df_oracle[field].replace({pd.NA: None, pd.NaT: None})
+            df_oracle[field] = df_oracle[field].where(pd.notna(df_oracle[field]), None)
+    
+except Exception as e:
+    print(f"  [WARNING] SQL Server extraction failed: {e}")
+    print("  Continuing without ABR data...")
+    # Add empty columns so mapping doesn't fail
+    df_oracle['ABN_Registration_Date'] = None
+    df_oracle['ABN_Status'] = None
+    df_oracle['Industry_Class_Code'] = None
+
+# ============================================================================
 # 3. TRANSFORM AND MAP COLUMNS
 # ============================================================================
 print("\nStep 3: Transforming and mapping columns...")
@@ -175,6 +300,22 @@ COLUMN_MAPPING = {
     'TRADING_NAME_REGISTERED': 'RegisteredEntityName__c',
     'TRADING_NAME_AS': 'TradingAs__c',
     'EMPLOYMENT_START_DATE': 'DateEmploymentCommenced__c',
+    'BILLING_STREET': 'BillingStreet',
+    'BILLING_CITY': 'BillingCity',
+    'BILLING_STATE': 'BillingState',
+    'BILLING_POSTCODE': 'BillingPostalCode',
+    'BILLING_COUNTRY': 'BillingCountry',
+    'IS_POSTAL_DIFFERENT': 'IsPostalAddressDifferent__c',
+    'POSTAL_STREET': 'ShippingStreet',
+    'POSTAL_CITY': 'ShippingCity',
+    'POSTAL_STATE': 'ShippingState',
+    'POSTAL_POSTCODE': 'ShippingPostalCode',
+    'POSTAL_COUNTRY': 'ShippingCountry',
+    # SQL Server ABR fields:
+    'ABN_Registration_Date': 'ABNRegistrationDate__c',
+    'ABN_Status': 'AccountStatus__c',
+    # Skip Classifications__c - ANZSIC values don't match SF picklist
+    'Industry_Class_Code': 'OSCACode__c',
     # SKIPPED PICKLIST FIELDS (values don't match SIT):
     # 'WSR_TYPE_CODE': 'AccountSubStatus__c',
     # 'EMPLOYER_TYPE_CODE': 'BusinessEntityType__c',
@@ -197,29 +338,38 @@ print("                        CoverageDeterminationStatus__c, Registration_Stat
 rename_cols = {k: v for k, v in COLUMN_MAPPING.items() if k in df_mapped.columns and v not in df_mapped.columns}
 df_mapped = df_mapped.rename(columns=rename_cols)
 
+# Replace ALL NaN/NaT values with None for JSON serialization
+print("  Replacing NaN/NaT values with None...")
+df_mapped = df_mapped.where(pd.notna(df_mapped), None)
+for col in df_mapped.columns:
+    df_mapped[col] = df_mapped[col].replace({pd.NA: None, pd.NaT: None, float('nan'): None, float('inf'): None, float('-inf'): None})
+
 # Drop original code columns (already mapped to descriptions)
 code_cols_to_drop = ['WSR_TYPE_CODE', 'EMPLOYER_TYPE_CODE', 'EMPLOYER_REASON_CODE', 'EMPLOYER_STATUS_CODE']
 df_mapped = df_mapped.drop(columns=[c for c in code_cols_to_drop if c in df_mapped.columns], errors='ignore')
 
-# Trim string fields
+# Trim string fields (only for actual string columns)
 for col in df_mapped.columns:
     if df_mapped[col].dtype == 'object':
-        df_mapped[col] = df_mapped[col].str.strip()
+        # Check if column actually contains strings
+        if df_mapped[col].apply(lambda x: isinstance(x, str)).any():
+            df_mapped[col] = df_mapped[col].apply(lambda x: x.strip() if isinstance(x, str) else x)
 
 # Convert dates to ISO format strings (JSON serializable)
-if 'DateEmploymentCommenced__c' in df_mapped.columns:
-    df_mapped['DateEmploymentCommenced__c'] = pd.to_datetime(
-        df_mapped['DateEmploymentCommenced__c'], 
-        errors='coerce'
-    )
-    # Convert to ISO format string, replace NaT with None
-    df_mapped['DateEmploymentCommenced__c'] = df_mapped['DateEmploymentCommenced__c'].apply(
-        lambda x: x.strftime('%Y-%m-%d') if pd.notna(x) else None
-    )
+for date_field in ['DateEmploymentCommenced__c', 'ABNRegistrationDate__c']:
+    if date_field in df_mapped.columns:
+        df_mapped[date_field] = pd.to_datetime(
+            df_mapped[date_field], 
+            errors='coerce'
+        )
+        # Convert to ISO format string, replace NaT with None
+        df_mapped[date_field] = df_mapped[date_field].apply(
+            lambda x: x.strftime('%Y-%m-%d') if pd.notna(x) else None
+        )
 
 # Convert numbers to strings (ABN, ACN are numbers in Oracle but text in SF)
 # Remove .0 suffix to avoid "STRING_TOO_LONG" errors
-for col in ['ABN__c', 'ACN__c', 'External_Id__c', 'Registration_Number__c']:
+for col in ['ABN__c', 'ACN__c', 'External_Id__c', 'Registration_Number__c', 'OSCACode__c']:
     if col in df_mapped.columns:
         df_mapped[col] = df_mapped[col].apply(
             lambda x: str(int(x)) if pd.notna(x) and x != '' else None
@@ -236,8 +386,13 @@ if null_ids > 0:
 
 duplicates = df_mapped['External_Id__c'].duplicated().sum()
 if duplicates > 0:
-    print(f"  WARNING: {duplicates} duplicate External_Id__c found (keeping first)")
+    print(f"  WARNING: {duplicates} duplicate External_Id__c found")
+    print(f"  Prioritizing rows with ABN data to maximize SQL Server enrichment...")
+    # Sort by ABN descending (non-null values first) before deduplication
+    # This ensures we keep the row WITH ABN data when duplicates exist
+    df_mapped = df_mapped.sort_values('ABN__c', ascending=False, na_position='last')
     df_mapped = df_mapped.drop_duplicates(subset=['External_Id__c'], keep='first')
+    print(f"  Kept records with ABN where possible")
 
 print(f"  Final record count: {len(df_mapped):,}")
 
