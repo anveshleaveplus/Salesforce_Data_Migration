@@ -146,6 +146,7 @@ SELECT * FROM (
         postal_addr.STATE as POSTAL_STATE,
         postal_addr.POSTCODE as POSTAL_POSTCODE,
         postal_addr.COUNTRY_CODE as POSTAL_COUNTRY,
+        c.EMAIL_ADDRESS,
         ROW_NUMBER() OVER (
             PARTITION BY e.CUSTOMER_ID 
             ORDER BY ws.EMPLOYMENT_START_DATE DESC NULLS LAST
@@ -311,6 +312,7 @@ COLUMN_MAPPING = {
     'POSTAL_STATE': 'ShippingState',
     'POSTAL_POSTCODE': 'ShippingPostalCode',
     'POSTAL_COUNTRY': 'ShippingCountry',
+    'EMAIL_ADDRESS': 'BusinessEmail__c',
     # SQL Server ABR fields:
     'ABN_Registration_Date': 'ABNRegistrationDate__c',
     'ABN_Status': 'AccountStatus__c',
