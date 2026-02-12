@@ -6,4 +6,17 @@ CO_PERSON,DATE_OF_BIRTH,Contact,Birthdate,Worker's date of birth
 CO_CUSTOMER,EMAIL_ADDRESS,Contact,Email,Primary email address
 CO_CUSTOMER,TELEPHONE1_NO,Contact,OtherPhone,Landline/other phone number
 CO_CUSTOMER,MOBILE_PHONE_NO,Contact,MobilePhone,Mobile phone number
+CO_PERSON,LANGUAGE_CODE,Contact,LanguagePreference__c,Mapped via CO_CODE table (code set 357) to language description
+CO_PERSON,TITLE_CODE,Contact,Title,Mapped via CO_CODE table (code set 24) to title description (Mr/Ms/Mrs/Miss)
+CO_PERSON,GENDER_CODE,Contact,GenderIdentity,Mapped via CO_CODE table (code set 11) to gender description (Male/Female)
+CO_ADDRESS,STREET (via POSTAL_ADDRESS_ID),Contact,MailingStreet,Street address from POSTAL_ADDRESS_ID (combined STREET + STREET2)
+CO_ADDRESS,SUBURB (via POSTAL_ADDRESS_ID),Contact,MailingCity,City/suburb from POSTAL_ADDRESS_ID
+CO_ADDRESS,STATE (via POSTAL_ADDRESS_ID),Contact,MailingState,State from POSTAL_ADDRESS_ID
+CO_ADDRESS,POSTCODE (via POSTAL_ADDRESS_ID),Contact,MailingPostalCode,Postal code from POSTAL_ADDRESS_ID
+CO_ADDRESS,COUNTRY_CODE (via POSTAL_ADDRESS_ID),Contact,MailingCountry,Country from POSTAL_ADDRESS_ID
+CO_ADDRESS,STREET (via ADDRESS_ID),Contact,OtherStreet,Street address from ADDRESS_ID (combined STREET + STREET2)
+CO_ADDRESS,SUBURB (via ADDRESS_ID),Contact,OtherCity,City/suburb from ADDRESS_ID
+CO_ADDRESS,STATE (via ADDRESS_ID),Contact,OtherState,State from ADDRESS_ID
+CO_ADDRESS,POSTCODE (via ADDRESS_ID),Contact,OtherPostalCode,Postal code from ADDRESS_ID
+CO_ADDRESS,COUNTRY_CODE (via ADDRESS_ID),Contact,OtherCountry,Country from ADDRESS_ID
 CO_EMPLOYMENT_PERIOD,EMPLOYER_ID,Contact,AccountId,Links Contact to Account (employer) - Conditional: Only set if changed to prevent duplicate ACR errors

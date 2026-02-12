@@ -1,0 +1,24 @@
+Oracle_Table,Oracle_Field,Oracle_Type,SF_Object,SF_Field,SF_Type,Transformation,Sample_Values,Notes,Field_Type
+SCH_CO_20.CO_WORKER,CUSTOMER_ID,NUMBER,Contact,External_Id__c,Text(18),Direct mapping - unique worker identifier,"100, 200, 300",External ID for upsert operations,Newly Added
+SCH_CO_20.CO_PERSON,FIRST_NAME,VARCHAR2,Contact,FirstName,Text(40),Direct mapping,"John, Mary, David",Contact first name,Standard (Read-Only)
+SCH_CO_20.CO_PERSON,SURNAME,VARCHAR2,Contact,LastName,Text(80),Direct mapping,"Smith, Johnson, Brown",Contact last name (required),Standard (Read-Only)
+SCH_CO_20.CO_CUSTOMER,EMAIL_ADDRESS,VARCHAR2,Contact,Email,Email,Direct mapping,john.smith@example.com,Contact email address,Standard (Read-Only)
+SCH_CO_20.CO_CUSTOMER,MOBILE_PHONE_NO,VARCHAR2,Contact,MobilePhone,Phone,Direct mapping,0412345678,Mobile phone number,Standard (Read-Only)
+SCH_CO_20.CO_CUSTOMER,TELEPHONE1_NO,VARCHAR2,Contact,OtherPhone,Phone,Direct mapping,0398765432,Other phone number,Standard (Read-Only)
+SCH_CO_20.CO_PERSON,DATE_OF_BIRTH,DATE,Contact,Birthdate,Date,"TO_CHAR(DATE_OF_BIRTH, 'YYYY-MM-DD')","1985-05-15, 1990-12-20",Date of birth,Standard (Read-Only)
+SCH_CO_20.CO_PERSON,LANGUAGE_CODE,VARCHAR2,Contact,LanguagePreference__c,Picklist,Mapped via CO_CODE table (code set 357) to language description,"English, Mandarin Chinese, Vietnamese",Worker language preference,Newly Added
+SCH_CO_20.CO_PERSON,TITLE_CODE,VARCHAR2,Contact,Title,Text(128),Mapped via CO_CODE table (code set 24) to title description,"Mr, Ms, Mrs, Miss",Worker title,Newly Added
+SCH_CO_20.CO_PERSON,GENDER_CODE,VARCHAR2,Contact,GenderIdentity,Picklist,Mapped via CO_CODE table (code set 11) to gender description,"Male, Female",Worker gender identity,Newly Added
+SCH_CO_20.CO_ADDRESS,STREET + STREET2 (via POSTAL_ADDRESS_ID),VARCHAR2,Contact,MailingStreet,Textarea,Concatenate STREET and STREET2 from POSTAL_ADDRESS_ID,123 Main St,Mailing street address,Newly Added
+SCH_CO_20.CO_ADDRESS,SUBURB (via POSTAL_ADDRESS_ID),VARCHAR2,Contact,MailingCity,Text(40),Direct mapping from POSTAL_ADDRESS_ID,"Sydney, Melbourne",Mailing city/suburb,Newly Added
+SCH_CO_20.CO_ADDRESS,STATE (via POSTAL_ADDRESS_ID),VARCHAR2,Contact,MailingState,Text(80),Direct mapping from POSTAL_ADDRESS_ID,"NSW, VIC",Mailing state,Newly Added
+SCH_CO_20.CO_ADDRESS,POSTCODE (via POSTAL_ADDRESS_ID),VARCHAR2,Contact,MailingPostalCode,Text(20),Direct mapping from POSTAL_ADDRESS_ID,"2000, 3000",Mailing postal code,Newly Added
+SCH_CO_20.CO_ADDRESS,COUNTRY_CODE (via POSTAL_ADDRESS_ID),VARCHAR2,Contact,MailingCountry,Text(80),Direct mapping from POSTAL_ADDRESS_ID,Australia,Mailing country,Newly Added
+SCH_CO_20.CO_ADDRESS,STREET + STREET2 (via ADDRESS_ID),VARCHAR2,Contact,OtherStreet,Textarea,Concatenate STREET and STREET2 from ADDRESS_ID,456 Other St,Other street address,Newly Added
+SCH_CO_20.CO_ADDRESS,SUBURB (via ADDRESS_ID),VARCHAR2,Contact,OtherCity,Text(40),Direct mapping from ADDRESS_ID,"Brisbane, Perth",Other city/suburb,Newly Added
+SCH_CO_20.CO_ADDRESS,STATE (via ADDRESS_ID),VARCHAR2,Contact,OtherState,Text(80),Direct mapping from ADDRESS_ID,"QLD, WA",Other state,Newly Added
+SCH_CO_20.CO_ADDRESS,POSTCODE (via ADDRESS_ID),VARCHAR2,Contact,OtherPostalCode,Text(20),Direct mapping from ADDRESS_ID,"4000, 6000",Other postal code,Newly Added
+SCH_CO_20.CO_ADDRESS,COUNTRY_CODE (via ADDRESS_ID),VARCHAR2,Contact,OtherCountry,Text(80),Direct mapping from ADDRESS_ID,Australia,Other country,Newly Added
+SCH_CO_20.CO_EMPLOYMENT_PERIOD,EMPLOYER_ID,NUMBER,Contact,AccountId,Lookup(Account),Lookup Account.Id by External_Id__c = EMPLOYER_ID,Account IDs from active employers,Links contact to primary employer account,Standard (Read-Only)
+SCH_CO_20.CO_EMPLOYMENT_PERIOD,EMPLOYER_ID,NUMBER,AccountContactRelation,AccountId,Lookup(Account),Created for active employment relationships (EFFECTIVE_TO_DATE IS NULL),Account IDs,ACR created to link contacts to employer accounts,Relationship Object
+SCH_CO_20.CO_SERVICE,PERIOD_END,NUMBER,Contact,N/A - Filter Only,N/A,WHERE employer has service records >= 202301,"202301, 202401",Filter: Only contacts for active employers,Filter Criteria

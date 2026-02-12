@@ -1,0 +1,20 @@
+Returns and Claims Migration - Field Mapping Update
+
+Not sure we have all the columns in Salesforce for Return__c, Claim__c, and ClaimComponent__c objects.
+
+I've added the existing columns from Salesforce SIT to the mapping sheets:
+- RETURN_EXISTING_FIELDS.csv
+- CLAIM_EXISTING_FIELDS.csv
+- CLAIMCOMPONENT_EXISTING_FIELDS.csv
+
+Currently:
+- Return__c: 0 custom fields (only standard fields)
+- Claim__c: 0 custom fields (only standard fields)
+- ClaimComponent__c: 1 custom field (Claim__c lookup)
+
+Oracle source tables ready:
+- CO_BACK_RETURN_REQUEST: 6,531 records
+- CO_CLAIM: 336,341 records
+- CO_CLAIM_PAYMENT: 368,976 records
+
+Please review the existing column mappings.

@@ -24,6 +24,20 @@ LIMIT_ROWS = 50000  # Load 50K contacts
 BATCH_SIZE = 500
 ACTIVE_PERIOD = 202301  # Filter for employers with service >= Jan 2023
 
+# Load Field Officer mapping (Oracle code → Salesforce User ID)
+# SF Admin confirmed: Can link records with inactive users
+FIELD_OFFICER_MAPPING = {}
+try:
+    with open('field_officer_salesforce_mapping.csv', 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            # Include ALL officers (active and inactive)
+            if row['Salesforce_User_Id'] != 'ERROR':
+                FIELD_OFFICER_MAPPING[row['Officer_Code']] = row['Salesforce_User_Id']
+    print(f"Loaded {len(FIELD_OFFICER_MAPPING)} Field Officer mappings (active and inactive)")
+except FileNotFoundError:
+    print("[WARNING] field_officer_salesforce_mapping.csv not found - FieldOfficerAllocated__c will be NULL")
+
 print("="*70)
 print("SIT - Oracle to Salesforce Contact Sync")
 print("Loading: 50,000 contacts for active employers")
@@ -134,10 +148,39 @@ def extract_oracle_data(conn):
             p.FIRST_NAME,
             p.SURNAME as LAST_NAME,
             p.DATE_OF_BIRTH,
+            p.LANGUAGE_CODE,
+            p.TITLE_CODE,
+            p.GENDER_CODE,
+            w.UNION_DELEGATE_CODE,
             c.EMAIL_ADDRESS,
-            c.TELEPHONE1_NO as OTHER_PHONE,
+            c.TELEPHONE1_NO,
+            c.TELEPHONE2_NO,
             c.MOBILE_PHONE_NO,
+            c.ADDRESS_ID,
+            a1.STREET as OTHER_STREET,
+            a1.STREET2 as OTHER_STREET2,
+            a1.SUBURB as OTHER_CITY,
+            a1.STATE as OTHER_STATE,
+            a1.POSTCODE as OTHER_POSTALCODE,
+            a1.COUNTRY_CODE as OTHER_COUNTRY,
+            c.POSTAL_ADDRESS_ID,
+            a2.STREET as MAILING_STREET,
+            a2.STREET2 as MAILING_STREET2,
+            a2.SUBURB as MAILING_CITY,
+            a2.STATE as MAILING_STATE,
+            a2.POSTCODE as MAILING_POSTALCODE,
+            a2.COUNTRY_CODE as MAILING_COUNTRY,
             ep.EMPLOYER_ID,
+            (
+                SELECT fov.ASSIGNED_TO
+                FROM SCH_CO_20.CO_FIELD_VISIT_MEMBERS fvm
+                INNER JOIN SCH_CO_20.CO_FIELD_OFFICER_VISIT fov 
+                    ON fvm.FIELD_OFFICER_VISIT_ID = fov.FIELD_OFFICER_VISIT_ID
+                WHERE fvm.CUSTOMER_ID = w.CUSTOMER_ID
+                    AND fov.ASSIGNED_TO IS NOT NULL
+                ORDER BY fvm.CREATED_WHEN DESC
+                FETCH FIRST 1 ROWS ONLY
+            ) as FIELD_OFFICER_CODE,
             ROW_NUMBER() OVER (
                 PARTITION BY w.CUSTOMER_ID 
                 ORDER BY ep.EFFECTIVE_FROM_DATE DESC NULLS LAST
@@ -145,6 +188,8 @@ def extract_oracle_data(conn):
         FROM SCH_CO_20.CO_WORKER w
         INNER JOIN SCH_CO_20.CO_PERSON p ON w.PERSON_ID = p.PERSON_ID
         INNER JOIN SCH_CO_20.CO_CUSTOMER c ON p.PERSON_ID = c.CUSTOMER_ID
+        LEFT JOIN SCH_CO_20.CO_ADDRESS a1 ON c.ADDRESS_ID = a1.ADDRESS_ID
+        LEFT JOIN SCH_CO_20.CO_ADDRESS a2 ON c.POSTAL_ADDRESS_ID = a2.ADDRESS_ID
         LEFT JOIN SCH_CO_20.CO_EMPLOYMENT_PERIOD ep 
             ON w.CUSTOMER_ID = ep.WORKER_ID 
             AND ep.EFFECTIVE_TO_DATE IS NULL
@@ -172,8 +217,98 @@ def extract_oracle_data(conn):
     print(f"        Non-null DATE_OF_BIRTH: {df['DATE_OF_BIRTH'].notna().sum():,}")
     print(f"        Non-null MOBILE_PHONE_NO: {df['MOBILE_PHONE_NO'].notna().sum():,}")
     print(f"        Non-null EMPLOYER_ID: {df['EMPLOYER_ID'].notna().sum():,}")
+    print(f"        Non-null LANGUAGE_CODE: {df['LANGUAGE_CODE'].notna().sum():,}")
+    print(f"        Non-null TITLE_CODE: {df['TITLE_CODE'].notna().sum():,}")
+    print(f"        Non-null GENDER_CODE: {df['GENDER_CODE'].notna().sum():,}")
+    print(f"        Non-null ADDRESS_ID: {df['ADDRESS_ID'].notna().sum():,}")
+    print(f"        Non-null POSTAL_ADDRESS_ID: {df['POSTAL_ADDRESS_ID'].notna().sum():,}")
     
     return df
+
+def load_language_code_mappings(conn):
+    """Load language code mappings from CO_CODE table"""
+    print("[3.5/7] Loading language code mappings...")
+    
+    cursor = conn.cursor()
+    
+    # Get language code set ID
+    cursor.execute("""
+        SELECT code_set_id 
+        FROM SCH_CO_20.CO_CODE_SET 
+        WHERE LOWER(code_set_name) LIKE '%language%'
+        AND code_set_id = 357
+    """)
+    
+    result = cursor.fetchone()
+    
+    if not result:
+        print("      [WARNING] Language code set not found")
+        return {}
+    
+    code_set_id = result[0]
+    
+    # Load code mappings
+    cursor.execute(f"""
+        SELECT value, description 
+        FROM SCH_CO_20.CO_CODE 
+        WHERE code_set_id = {code_set_id}
+        ORDER BY value
+    """)
+    
+    language_mapping = {}
+    for row in cursor:
+        language_mapping[str(row[0])] = row[1]
+    
+    print(f"      [OK] Loaded {len(language_mapping)} language mappings")
+    print(f"      Sample: 4 -> {language_mapping.get('4', 'N/A')}")
+    
+    return language_mapping
+
+def load_title_mappings(conn):
+    """Load title code mappings from CO_CODE table"""
+    print("[3.6/7] Loading title code mappings...")
+    
+    cursor = conn.cursor()
+    
+    # Load title code mappings from code set 24
+    cursor.execute("""
+        SELECT value, description 
+        FROM SCH_CO_20.CO_CODE 
+        WHERE code_set_id = 24
+        ORDER BY value
+    """)
+    
+    title_mapping = {}
+    for row in cursor:
+        title_mapping[str(row[0])] = row[1]
+    
+    print(f"      [OK] Loaded {len(title_mapping)} title mappings")
+    print(f"      Sample: 01 -> {title_mapping.get('01', 'N/A')}")
+    
+    return title_mapping
+
+def load_gender_mappings(conn):
+    """Load gender code mappings from CO_CODE table"""
+    print("[3.7/7] Loading gender code mappings...")
+    
+    cursor = conn.cursor()
+    
+    # Load gender code mappings from code set 11
+    cursor.execute("""
+        SELECT value, description 
+        FROM SCH_CO_20.CO_CODE 
+        WHERE code_set_id = 11
+        ORDER BY value
+    """)
+    
+    gender_mapping = {}
+    for row in cursor:
+        gender_mapping[str(row[0])] = row[1]
+    
+    print(f"      [OK] Loaded {len(gender_mapping)} gender mappings")
+    print(f"      Sample: 02 -> {gender_mapping.get('02', 'N/A')}")
+    
+    return gender_mapping
 
 def get_existing_contacts(sf, external_ids):
     """Query existing Contacts and their AccountIds to avoid duplicate ACR creation"""
@@ -207,7 +342,7 @@ def get_existing_contacts(sf, external_ids):
     print(f"        [OK] Found {len(existing_contacts):,} existing Contacts")
     return existing_contacts
 
-def map_to_salesforce(df, account_map, existing_contacts):
+def map_to_salesforce(df, account_map, existing_contacts, language_mapping, title_mapping, gender_mapping):
     """Map Oracle columns to Salesforce Contact fields"""
     print("[6/7] Mapping Oracle data to Salesforce Contact fields...")
     
@@ -260,20 +395,74 @@ def map_to_salesforce(df, account_map, existing_contacts):
     # Email: EMAIL_ADDRESS
     df_mapped['Email'] = df['EMAIL_ADDRESS'].replace('', None)
     
-    # OtherPhone: TELEPHONE1_NO
-    df_mapped['OtherPhone'] = df['OTHER_PHONE'].replace('', None)
+    # Phone: TELEPHONE1_NO (primary landline)
+    df_mapped['Phone'] = df['TELEPHONE1_NO'].replace('', None)
+    
+    # OtherPhone: TELEPHONE2_NO (secondary landline)
+    df_mapped['OtherPhone'] = df['TELEPHONE2_NO'].replace('', None)
     
     # MobilePhone: MOBILE_PHONE_NO
     df_mapped['MobilePhone'] = df['MOBILE_PHONE_NO'].replace('', None)
+    
+    # LanguagePreference__c LANGUAGE_CODE mapped to language descriptions
+    df_mapped['LanguagePreference__c'] = df['LANGUAGE_CODE'].apply(
+        lambda x: language_mapping.get(str(int(x)), None) if pd.notna(x) else None
+    )
+    
+    # Title: TITLE_CODE mapped to title descriptions (code set 24)
+    df_mapped['Title'] = df['TITLE_CODE'].apply(
+        lambda x: title_mapping.get(str(x), None) if pd.notna(x) else None
+    )
+    
+    # GenderIdentity: GENDER_CODE mapped to gender descriptions (code set 11)
+    df_mapped['GenderIdentity'] = df['GENDER_CODE'].apply(
+        lambda x: gender_mapping.get(str(x), None) if pd.notna(x) else None
+    )
+    
+    # UnionDelegate__c: UNION_DELEGATE_CODE converted to boolean (checkbox)
+    # Logic: Non-null values that are NOT '0' indicate union delegate status (AMWU, AWU, CFMEU, etc.)
+    df_mapped['UnionDelegate__c'] = df['UNION_DELEGATE_CODE'].apply(
+        lambda x: False if pd.isna(x) or str(x).strip() == '0' else True
+    )
+    
+    # FieldOfficerAllocated__c: FIELD_OFFICER_CODE mapped to Salesforce User ID (Lookup to User)
+    df_mapped['FieldOfficerAllocated__c'] = df['FIELD_OFFICER_CODE'].apply(
+        lambda x: FIELD_OFFICER_MAPPING.get(str(x).strip(), None) if pd.notna(x) else None
+    )
+    
+    # MailingAddress: POSTAL_ADDRESS_ID → MailingStreet, MailingCity, MailingState, MailingPostalCode, MailingCountry
+    df_mapped['MailingStreet'] = df.apply(
+        lambda row: ' '.join(filter(pd.notna, [row['MAILING_STREET'], row['MAILING_STREET2']])) if pd.notna(row['MAILING_STREET']) else None,
+        axis=1
+    )
+    df_mapped['MailingCity'] = df['MAILING_CITY']
+    df_mapped['MailingState'] = df['MAILING_STATE']
+    df_mapped['MailingPostalCode'] = df['MAILING_POSTALCODE']
+    df_mapped['MailingCountry'] = df['MAILING_COUNTRY']
+    
+    # OtherAddress: ADDRESS_ID → OtherStreet, OtherCity, OtherState, OtherPostalCode, OtherCountry
+    df_mapped['OtherStreet'] = df.apply(
+        lambda row: ' '.join(filter(pd.notna, [row['OTHER_STREET'], row['OTHER_STREET2']])) if pd.notna(row['OTHER_STREET']) else None,
+        axis=1
+    )
+    df_mapped['OtherCity'] = df['OTHER_CITY']
+    df_mapped['OtherState'] = df['OTHER_STATE']
+    df_mapped['OtherPostalCode'] = df['OTHER_POSTALCODE']
+    df_mapped['OtherCountry'] = df['OTHER_COUNTRY']
     
     accounts_found = df_mapped['AccountId'].notna().sum()
     accounts_missing = df_mapped['AccountId'].isna().sum()
     accounts_skipped = len([ext_id for ext_id in df_mapped['External_Id__c'] 
                            if ext_id in existing_contacts and df_mapped[df_mapped['External_Id__c']==ext_id]['AccountId'].isna().any()])
     
-    print(f"      [OK] Mapped {len(df_mapped)} records with 8 fields")
+    field_officers_assigned = df_mapped['FieldOfficerAllocated__c'].notna().sum()
+    
+    print(f"      [OK] Mapped {len(df_mapped)} records with 24 fields")
     print(f"      Fields: External_Id__c (WORKER_ID), FirstName, LastName, AccountId (Account lookup),")
-    print(f"              Birthdate, Email, OtherPhone, MobilePhone")
+    print(f"              Birthdate, Email, Phone, OtherPhone, MobilePhone, LanguagePreference__c, Title, GenderIdentity,")
+    print(f"              UnionDelegate__c, FieldOfficerAllocated__c (User lookup), MailingStreet, MailingCity, MailingState,")
+    print(f"              MailingPostalCode, MailingCountry, OtherStreet, OtherCity, OtherState, OtherPostalCode, OtherCountry")
+    print(f"      Field Officer assignments: {field_officers_assigned:,} contacts ({field_officers_assigned/len(df_mapped)*100:.1f}%)")
     print(f"      Account lookups: {accounts_found:,} will be set")
     print(f"      Account lookups: {accounts_skipped:,} skipped (Contact already has this AccountId)")
     print(f"      Account lookups: {accounts_missing - accounts_skipped:,} missing (no employer in SF)")
@@ -479,6 +668,15 @@ def main():
         # Extract Oracle data
         df = extract_oracle_data(conn)
         
+        # Load language code mappings
+        language_mapping = load_language_code_mappings(conn)
+        
+        # Load title code mappings
+        title_mapping = load_title_mappings(conn)
+        
+        # Load gender code mappings
+        gender_mapping = load_gender_mappings(conn)
+        
         # Fetch Account IDs from Salesforce
         account_map = fetch_account_ids(sf, df['EMPLOYER_ID'])
         
@@ -492,7 +690,7 @@ def main():
         existing_contacts = get_existing_contacts(sf, external_ids)
         
         # Transform data
-        df_mapped = map_to_salesforce(df, account_map, existing_contacts)
+        df_mapped = map_to_salesforce(df, account_map, existing_contacts, language_mapping, title_mapping, gender_mapping)
         
         # Load to Salesforce
         success_count, error_count, errors = upsert_to_salesforce(sf, df_mapped)

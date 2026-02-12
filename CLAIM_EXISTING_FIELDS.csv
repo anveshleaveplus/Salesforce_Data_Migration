@@ -1,0 +1,13 @@
+SF_Object,Field_Name,Type,Label,Description
+Claim__c,Name,Auto Number,Claim Name,Standard field (auto-number C-00001)
+Claim__c,Id,Id,Record ID,Standard Salesforce ID
+Claim__c,OwnerId,Lookup(User),Owner ID,Record owner
+Claim__c,CreatedById,Lookup(User),Created By ID,Who created record
+Claim__c,CreatedDate,DateTime,Created Date,When created
+Claim__c,LastModifiedById,Lookup(User),Last Modified By ID,Who last modified
+Claim__c,LastModifiedDate,DateTime,Last Modified Date,When last modified
+Claim__c,IsDeleted,Boolean,Deleted,Soft delete flag
+Claim__c,SystemModstamp,DateTime,System Modstamp,System modification timestamp
+
+Note: NO CUSTOM FIELDS EXIST - Only standard Salesforce fields above
+Total Records: 5 test records (C-00014 to C-00018)

@@ -1,4 +1,4 @@
-﻿Salesforce_Field,Oracle_Table,Oracle_Column
+Salesforce_Field,Oracle_Table,Oracle_Column
 External_Id__c,CO_EMPLOYER,CUSTOMER_ID
 Registration_Number__c,CO_EMPLOYER,CUSTOMER_ID
 ABN__c,CO_EMPLOYER,ABN

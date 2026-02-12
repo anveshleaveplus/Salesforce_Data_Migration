@@ -1,0 +1,11 @@
+Oracle_Table,Oracle_Field,Oracle_Type,SF_Object,SF_Field,SF_Type,Transformation,Sample_Values,Notes,Field_Type
+SCH_CO_20.CO_WORKER,CUSTOMER_ID,NUMBER,Contact,External_Id__c,Text(18),Direct mapping - unique worker identifier,"100, 200, 300",External ID for upsert operations,Newly Added
+SCH_CO_20.CO_PERSON,FIRST_NAME,VARCHAR2,Contact,FirstName,Text(40),Direct mapping,"John, Mary, David",Contact first name,Standard (Read-Only)
+SCH_CO_20.CO_PERSON,SURNAME,VARCHAR2,Contact,LastName,Text(80),Direct mapping,"Smith, Johnson, Brown",Contact last name (required),Standard (Read-Only)
+SCH_CO_20.CO_CUSTOMER,EMAIL_ADDRESS,VARCHAR2,Contact,Email,Email,Direct mapping,john.smith@example.com,Contact email address,Standard (Read-Only)
+SCH_CO_20.CO_CUSTOMER,MOBILE_PHONE_NO,VARCHAR2,Contact,MobilePhone,Phone,Direct mapping,0412345678,Mobile phone number,Standard (Read-Only)
+SCH_CO_20.CO_CUSTOMER,TELEPHONE1_NO,VARCHAR2,Contact,OtherPhone,Phone,Direct mapping,0398765432,Other phone number,Standard (Read-Only)
+SCH_CO_20.CO_PERSON,DATE_OF_BIRTH,DATE,Contact,Birthdate,Date,"TO_CHAR(DATE_OF_BIRTH, 'YYYY-MM-DD')","1985-05-15, 1990-12-20",Date of birth,Standard (Read-Only)
+SCH_CO_20.CO_EMPLOYMENT_PERIOD,EMPLOYER_ID,NUMBER,Contact,AccountId,Lookup(Account),Lookup Account.Id by External_Id__c = EMPLOYER_ID,Account IDs from active employers,Links contact to primary employer account,Standard (Read-Only)
+SCH_CO_20.CO_EMPLOYMENT_PERIOD,EMPLOYER_ID,NUMBER,AccountContactRelation,AccountId,Lookup(Account),Created for active employment relationships (EFFECTIVE_TO_DATE IS NULL),Account IDs,ACR created to link contacts to employer accounts,Relationship Object
+SCH_CO_20.CO_SERVICE,PERIOD_END,NUMBER,Contact,N/A - Filter Only,N/A,WHERE employer has service records >= 202301,"202301, 202401",Filter: Only contacts for active employers,Filter Criteria

@@ -1,0 +1,13 @@
+SF_Object,Field_Name,Type,Label,Description
+Return__c,Name,Auto Number,Return Id,Standard field (auto-number)
+Return__c,Id,Id,Record ID,Standard Salesforce ID
+Return__c,OwnerId,Lookup(User),Owner ID,Record owner
+Return__c,CreatedById,Lookup(User),Created By ID,Who created record
+Return__c,CreatedDate,DateTime,Created Date,When created
+Return__c,LastModifiedById,Lookup(User),Last Modified By ID,Who last modified
+Return__c,LastModifiedDate,DateTime,Last Modified Date,When last modified
+Return__c,IsDeleted,Boolean,Deleted,Soft delete flag
+Return__c,SystemModstamp,DateTime,System Modstamp,System modification timestamp
+
+Note: NO CUSTOM FIELDS EXIST - Only standard Salesforce fields above
+Total Records: 5 test records (RET-000000 to RET-000004)

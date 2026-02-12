@@ -1,0 +1,39 @@
+Subject: Field Officer Email Addresses - Data Migration Query
+
+Hi [Oracle Admin Name],
+
+Quick question about Field Officer user data in Oracle.
+
+We're migrating Field Officer assignments to Salesforce and need email addresses for the 47 Field Officers. 
+
+I checked the CO_USER table structure and found it doesn't have an EMAIL column. The table contains:
+- USERID (MICHAELD, JEREMYT, etc.)
+- USER_NAME (display names)
+- MOBILE_PHONE_NO
+- But no email address field
+
+Questions:
+1. Is there another table where Field Officer email addresses are stored?
+2. Are emails stored in a different system (HR system, Active Directory, etc.)?
+3. Should we proceed with generated emails for SIT testing?
+
+Field Officers we need (47 total):
+- MICHAELD (Michael Docherty) - Active
+- JEREMYT (Jeremy Tobin) - Active  
+- PETERGIU (Peter Giudice) - Inactive
+- ... and 44 others
+
+Context:
+Salesforce requires unique email addresses for all users. Since CO_USER doesn't have emails, we're using generated addresses like:
+- michael.docherty.sit2@leaveplus.com.au
+- jeremy.tobin.sit2@leaveplus.com.au
+
+These work fine for SIT testing, but wanted to check if real email addresses exist somewhere in the system before finalizing the approach.
+
+Please let me know:
+1. If Field Officer emails are stored anywhere in Oracle
+2. If we should look in another system
+3. If generated emails are acceptable for this use case
+
+Thanks!
+Anvesh

@@ -329,6 +329,42 @@ mappings = [
         'Sample_Values': '3000, 4100, 4500',
         'Notes': 'ANZSIC industry class code from SQL Server (cosql-test.coinvest.com.au)',
         'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_CUSTOMER',
+        'Oracle_Field': 'EMAIL_ADDRESS',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Account',
+        'SF_Field': 'BusinessEmail__c',
+        'SF_Type': 'Email',
+        'Transformation': 'Direct mapping from CO_CUSTOMER',
+        'Sample_Values': 'test@example.com',
+        'Notes': 'Business email address (0.07% populated - 38 of 53,887 accounts)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_EMPLOYMENT_PERIOD',
+        'Oracle_Field': 'WORKER_ID',
+        'Oracle_Type': 'NUMBER',
+        'SF_Object': 'Account',
+        'SF_Field': 'NumberOfEmployees',
+        'SF_Type': 'Number',
+        'Transformation': 'COUNT(DISTINCT WORKER_ID) for active employees (service >= 202301)',
+        'Sample_Values': '6, 34, 49471',
+        'Notes': 'Count of active employees per employer (100% populated - all 53,887 accounts)',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_I_NEW_EMPLOYER_DETAIL',
+        'Oracle_Field': 'OWNER_PERFORM_TRADEWORK',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Account',
+        'SF_Field': 'OwnersPerformCoveredWork__c',
+        'SF_Type': 'Checkbox (Boolean)',
+        'Transformation': 'Y/N converted to True/False',
+        'Sample_Values': 'True, False',
+        'Notes': 'Indicates if business owners perform covered work (2.47% populated - 1,331 accounts)',
+        'Field_Type': 'Newly Added'
     }
 ]
 
@@ -355,7 +391,8 @@ SELECT External_Id__c, Name, ABN__c, ACN__c,
        RegisteredEntityName__c, TradingAs__c, 
        Registration_Number__c, DateEmploymentCommenced__c, Type,
        RegisteredOfficeAddress__c,
-       ABNRegistrationDate__c, AccountStatus__c, OSCACode__c
+       ABNRegistrationDate__c, AccountStatus__c, OSCACode__c,
+       NumberOfEmployees, OwnersPerformCoveredWork__c, BusinessEmail__c
 FROM Account
 WHERE External_Id__c != null 
   AND ABNRegistrationDate__c != null
@@ -386,6 +423,10 @@ with open(sample_file, 'w', encoding='utf-8') as f:
         f.write(f"RegisteredOfficeAddress__c:   {rec.get('RegisteredOfficeAddress__c', 'NULL')}\n")
         f.write(f"DateEmploymentCommenced__c:   {rec.get('DateEmploymentCommenced__c', 'NULL')}\n")
         f.write(f"Type:                         {rec.get('Type', 'NULL')}\n")
+        f.write(f"\n-- New Fields (Feb 6, 2026) --\n")
+        f.write(f"NumberOfEmployees:            {rec.get('NumberOfEmployees', 'NULL')}\n")
+        f.write(f"OwnersPerformCoveredWork__c:  {rec.get('OwnersPerformCoveredWork__c', 'NULL')}\n")
+        f.write(f"BusinessEmail__c:             {rec.get('BusinessEmail__c', 'NULL')}\n")
         f.write(f"\n-- SQL Server ABR Fields --\n")
         f.write(f"ABNRegistrationDate__c:       {rec.get('ABNRegistrationDate__c', 'NULL')}\n")
         f.write(f"AccountStatus__c:             {rec.get('AccountStatus__c', 'NULL')}\n")

@@ -27,8 +27,9 @@ ACTIVE_PERIOD = 202301  # Filter: Service records >= Jan 2023
 print("="*70)
 print("SIT - Oracle to Salesforce Account Sync")
 print("Active Employers Filter: Service >= 2023")
+print("Excluding: CUSTOMER_ID 23000 (LSL Credits - internal account)")
 print("="*70)
-print(f"Expected: ~54,000 active employers")
+print(f"Expected: ~53,800 active employers")
 print(f"Batch size: {BATCH_SIZE}")
 print()
 
@@ -147,6 +148,8 @@ SELECT * FROM (
         postal_addr.POSTCODE as POSTAL_POSTCODE,
         postal_addr.COUNTRY_CODE as POSTAL_COUNTRY,
         c.EMAIL_ADDRESS,
+        emp_count.EMPLOYEE_COUNT as NUMBER_OF_EMPLOYEES,
+        ned.OWNER_PERFORM_TRADEWORK,
         ROW_NUMBER() OVER (
             PARTITION BY e.CUSTOMER_ID 
             ORDER BY ws.EMPLOYMENT_START_DATE DESC NULLS LAST
@@ -162,6 +165,20 @@ SELECT * FROM (
         ON ws.WSR_ID = e.CUSTOMER_ID
     LEFT JOIN SCH_CO_20.CO_EMPLOYER_STATUS es
         ON es.EMPLOYER_STATUS_ID = e.CUSTOMER_ID
+    LEFT JOIN (
+        SELECT 
+            ep.EMPLOYER_ID,
+            COUNT(DISTINCT ep.WORKER_ID) as EMPLOYEE_COUNT
+        FROM SCH_CO_20.CO_EMPLOYMENT_PERIOD ep
+        WHERE EXISTS (
+            SELECT 1 FROM SCH_CO_20.CO_SERVICE s
+            WHERE s.WORKER = ep.WORKER_ID
+            AND s.PERIOD_END >= {ACTIVE_PERIOD}
+        )
+        GROUP BY ep.EMPLOYER_ID
+    ) emp_count ON emp_count.EMPLOYER_ID = e.CUSTOMER_ID
+    LEFT JOIN SCH_CO_20.CO_I_NEW_EMPLOYER_DETAIL ned
+        ON ned.EMPLOYER_ID = e.CUSTOMER_ID
     WHERE e.CUSTOMER_ID IN (
         SELECT DISTINCT ep.EMPLOYER_ID
         FROM SCH_CO_20.CO_EMPLOYMENT_PERIOD ep
@@ -171,6 +188,7 @@ SELECT * FROM (
             AND s.PERIOD_END >= {ACTIVE_PERIOD}
         )
     )
+    AND e.CUSTOMER_ID != 23000  -- Exclude "LONG SERVICE LEAVE CREDITS" (internal LP account)
 ) WHERE rn = 1 {rownum_filter}
 """
 
@@ -313,6 +331,8 @@ COLUMN_MAPPING = {
     'POSTAL_POSTCODE': 'ShippingPostalCode',
     'POSTAL_COUNTRY': 'ShippingCountry',
     'EMAIL_ADDRESS': 'BusinessEmail__c',
+    'NUMBER_OF_EMPLOYEES': 'NumberOfEmployees',
+    'OWNER_PERFORM_TRADEWORK': 'OwnersPerformCoveredWork__c',
     # SQL Server ABR fields:
     'ABN_Registration_Date': 'ABNRegistrationDate__c',
     'ABN_Status': 'AccountStatus__c',
@@ -328,8 +348,8 @@ COLUMN_MAPPING = {
 # Apply transformations
 df_mapped = df_oracle.copy()
 
-# Map picklist codes to descriptions (ALL SKIPPED for SIT due to value mismatches)
-print("  NOTE: Skipping all picklist fields - values don't exist in SIT environment")
+# Map picklist codes to descriptions (MOST SKIPPED for SIT due to value mismatches)
+print("  NOTE: Skipping other picklist fields - values don't exist in SIT environment")
 print("        Fields skipped: AccountSubStatus__c, BusinessEntityType__c,")
 print("                        CoverageDeterminationStatus__c, Registration_Status__c")
 
@@ -340,6 +360,12 @@ print("                        CoverageDeterminationStatus__c, Registration_Stat
 rename_cols = {k: v for k, v in COLUMN_MAPPING.items() if k in df_mapped.columns and v not in df_mapped.columns}
 df_mapped = df_mapped.rename(columns=rename_cols)
 
+# Convert OWNER_PERFORM_TRADEWORK to boolean
+if 'OwnersPerformCoveredWork__c' in df_mapped.columns:
+    df_mapped['OwnersPerformCoveredWork__c'] = df_mapped['OwnersPerformCoveredWork__c'].apply(
+        lambda x: True if x == 'Y' else (False if x == 'N' else None)
+    )
+
 # Replace ALL NaN/NaT values with None for JSON serialization
 print("  Replacing NaN/NaT values with None...")
 df_mapped = df_mapped.where(pd.notna(df_mapped), None)
@@ -347,7 +373,7 @@ for col in df_mapped.columns:
     df_mapped[col] = df_mapped[col].replace({pd.NA: None, pd.NaT: None, float('nan'): None, float('inf'): None, float('-inf'): None})
 
 # Drop original code columns (already mapped to descriptions)
-code_cols_to_drop = ['WSR_TYPE_CODE', 'EMPLOYER_TYPE_CODE', 'EMPLOYER_REASON_CODE', 'EMPLOYER_STATUS_CODE']
+code_cols_to_drop = ['EMPLOYER_TYPE_CODE', 'EMPLOYER_REASON_CODE', 'EMPLOYER_STATUS_CODE', 'WSR_TYPE_CODE']
 df_mapped = df_mapped.drop(columns=[c for c in code_cols_to_drop if c in df_mapped.columns], errors='ignore')
 
 # Trim string fields (only for actual string columns)

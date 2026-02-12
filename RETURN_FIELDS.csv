@@ -1,0 +1,16 @@
+Oracle_Table,Oracle_Column,SF_Field_Name,SF_Type,SF_Length,Required,Description
+CO_BACK_RETURN_REQUEST,EMPLOYER_ID,Account__c,Lookup(Account),-,Yes,Link to employer account
+CO_BACK_RETURN_REQUEST,BACK_RETURN_REQUEST_ID,External_ID__c,Text,20,Yes,Oracle Return ID (unique external ID)
+CO_BACK_RETURN_REQUEST,BACK_RETURN_STATUS_CODE,Status__c,Picklist,-,No,Return status code
+CO_BACK_RETURN_REQUEST,RETURN_TYPE_CODE,Return_Type__c,Picklist,-,No,Type of return
+CO_BACK_RETURN_REQUEST,REQUESTED_DATE,Requested_Date__c,Date,-,No,When return was requested
+CO_BACK_RETURN_REQUEST,REQUESTED_BY,Requested_By__c,Text,30,No,User who requested
+CO_BACK_RETURN_REQUEST,PROCESSED_DATE,Processed_Date__c,Date,-,No,When return was processed
+CO_BACK_RETURN_REQUEST,BACK_RETURN_REQUEST_ID,Back_Return_Request_ID__c,Number,"18,0",No,Period reference ID
+CO_BACK_RETURN_REQUEST,CREATED_BY,Oracle_Created_By__c,Text,30,No,Oracle user who created
+CO_BACK_RETURN_REQUEST,CREATED_WHEN,Oracle_Created_Date__c,DateTime,-,No,Oracle creation date
+CO_BACK_RETURN_REQUEST,MODIFIED_BY,Oracle_Modified_By__c,Text,30,No,Oracle user who modified
+CO_BACK_RETURN_REQUEST,MODIFIED_WHEN,Oracle_Modified_Date__c,DateTime,-,No,Oracle modification date
+CO_BACK_RETURN_REQUEST,MODIFIED_TYPE,Oracle_Modified_Type__c,Text,7,No,Oracle modification type
+CO_BACK_RETURN_REQUEST,UPDATE_COUNTER,Oracle_Update_Counter__c,Number,"18,0",No,Oracle update count
+CO_BACK_RETURN_REQUEST,ORACLE_TRANSACTION_ID,Oracle_Transaction_ID__c,Text,128,No,Oracle transaction ID

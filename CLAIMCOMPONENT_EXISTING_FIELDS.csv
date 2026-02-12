@@ -1,0 +1,14 @@
+SF_Object,Field_Name,Type,Label,Description
+ClaimComponent__c,Name,Auto Number,Claim Breakdown Name,Standard field (auto-number)
+ClaimComponent__c,Id,Id,Record ID,Standard Salesforce ID
+ClaimComponent__c,OwnerId,Lookup(User),Owner ID,Record owner
+ClaimComponent__c,CreatedById,Lookup(User),Created By ID,Who created record
+ClaimComponent__c,CreatedDate,DateTime,Created Date,When created
+ClaimComponent__c,LastModifiedById,Lookup(User),Last Modified By ID,Who last modified
+ClaimComponent__c,LastModifiedDate,DateTime,Last Modified Date,When last modified
+ClaimComponent__c,IsDeleted,Boolean,Deleted,Soft delete flag
+ClaimComponent__c,SystemModstamp,DateTime,System Modstamp,System modification timestamp
+ClaimComponent__c,Claim__c,Lookup(Claim__c),Claim,CUSTOM FIELD - Lookup to parent Claim record
+
+Note: ONLY 1 CUSTOM FIELD EXISTS (Claim__c lookup)
+Total Records: 5 test records (all named "Week 1")

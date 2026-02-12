@@ -108,11 +108,23 @@ mappings = [
         'Oracle_Field': 'TELEPHONE1_NO',
         'Oracle_Type': 'VARCHAR2',
         'SF_Object': 'Contact',
-        'SF_Field': 'OtherPhone',
+        'SF_Field': 'Phone',
         'SF_Type': 'Phone',
         'Transformation': 'Direct mapping',
         'Sample_Values': '0398765432',
-        'Notes': 'Other phone number',
+        'Notes': 'Primary phone number (landline)',
+        'Field_Type': 'Standard (Read-Only)'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_CUSTOMER',
+        'Oracle_Field': 'TELEPHONE2_NO',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'OtherPhone',
+        'SF_Type': 'Phone',
+        'Transformation': 'Direct mapping',
+        'Sample_Values': '0397654321',
+        'Notes': 'Secondary phone number (landline)',
         'Field_Type': 'Standard (Read-Only)'
     },
     {
@@ -126,6 +138,174 @@ mappings = [
         'Sample_Values': '1985-05-15, 1990-12-20',
         'Notes': 'Date of birth',
         'Field_Type': 'Standard (Read-Only)'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_PERSON',
+        'Oracle_Field': 'LANGUAGE_CODE',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'LanguagePreference__c',
+        'SF_Type': 'Picklist',
+        'Transformation': 'Mapped via CO_CODE table (code set 357) to language description',
+        'Sample_Values': 'English, Mandarin Chinese, Vietnamese',
+        'Notes': 'Worker language preference',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_PERSON',
+        'Oracle_Field': 'TITLE_CODE',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'Title',
+        'SF_Type': 'Text(128)',
+        'Transformation': 'Mapped via CO_CODE table (code set 24) to title description',
+        'Sample_Values': 'Mr, Ms, Mrs, Miss',
+        'Notes': 'Worker title',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_PERSON',
+        'Oracle_Field': 'GENDER_CODE',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'GenderIdentity',
+        'SF_Type': 'Picklist',
+        'Transformation': 'Mapped via CO_CODE table (code set 11) to gender description',
+        'Sample_Values': 'Male, Female',
+        'Notes': 'Worker gender identity',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_WORKER',
+        'Oracle_Field': 'UNION_DELEGATE_CODE',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'UnionDelegate__c',
+        'SF_Type': 'Checkbox',
+        'Transformation': 'Boolean: False if NULL or \'0\', True otherwise (AMWU, AWU, CFMEU, ETU, PLCR, PTEU, RGLTR, RTBU)',
+        'Sample_Values': 'True (1.3% of contacts), False (98.7%)',
+        'Notes': 'Indicates if contact is a union delegate',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS',
+        'Oracle_Field': 'STREET + STREET2 (via POSTAL_ADDRESS_ID)',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'MailingStreet',
+        'SF_Type': 'Textarea',
+        'Transformation': 'Concatenate STREET and STREET2 from POSTAL_ADDRESS_ID',
+        'Sample_Values': '123 Main St',
+        'Notes': 'Mailing street address',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS',
+        'Oracle_Field': 'SUBURB (via POSTAL_ADDRESS_ID)',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'MailingCity',
+        'SF_Type': 'Text(40)',
+        'Transformation': 'Direct mapping from POSTAL_ADDRESS_ID',
+        'Sample_Values': 'Sydney, Melbourne',
+        'Notes': 'Mailing city/suburb',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS',
+        'Oracle_Field': 'STATE (via POSTAL_ADDRESS_ID)',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'MailingState',
+        'SF_Type': 'Text(80)',
+        'Transformation': 'Direct mapping from POSTAL_ADDRESS_ID',
+        'Sample_Values': 'NSW, VIC',
+        'Notes': 'Mailing state',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS',
+        'Oracle_Field': 'POSTCODE (via POSTAL_ADDRESS_ID)',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'MailingPostalCode',
+        'SF_Type': 'Text(20)',
+        'Transformation': 'Direct mapping from POSTAL_ADDRESS_ID',
+        'Sample_Values': '2000, 3000',
+        'Notes': 'Mailing postal code',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS',
+        'Oracle_Field': 'COUNTRY_CODE (via POSTAL_ADDRESS_ID)',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'MailingCountry',
+        'SF_Type': 'Text(80)',
+        'Transformation': 'Direct mapping from POSTAL_ADDRESS_ID',
+        'Sample_Values': 'Australia',
+        'Notes': 'Mailing country',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS',
+        'Oracle_Field': 'STREET + STREET2 (via ADDRESS_ID)',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'OtherStreet',
+        'SF_Type': 'Textarea',
+        'Transformation': 'Concatenate STREET and STREET2 from ADDRESS_ID',
+        'Sample_Values': '456 Other St',
+        'Notes': 'Other street address',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS',
+        'Oracle_Field': 'SUBURB (via ADDRESS_ID)',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'OtherCity',
+        'SF_Type': 'Text(40)',
+        'Transformation': 'Direct mapping from ADDRESS_ID',
+        'Sample_Values': 'Brisbane, Perth',
+        'Notes': 'Other city/suburb',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS',
+        'Oracle_Field': 'STATE (via ADDRESS_ID)',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'OtherState',
+        'SF_Type': 'Text(80)',
+        'Transformation': 'Direct mapping from ADDRESS_ID',
+        'Sample_Values': 'QLD, WA',
+        'Notes': 'Other state',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS',
+        'Oracle_Field': 'POSTCODE (via ADDRESS_ID)',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'OtherPostalCode',
+        'SF_Type': 'Text(20)',
+        'Transformation': 'Direct mapping from ADDRESS_ID',
+        'Sample_Values': '4000, 6000',
+        'Notes': 'Other postal code',
+        'Field_Type': 'Newly Added'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_ADDRESS',
+        'Oracle_Field': 'COUNTRY_CODE (via ADDRESS_ID)',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'OtherCountry',
+        'SF_Type': 'Text(80)',
+        'Transformation': 'Direct mapping from ADDRESS_ID',
+        'Sample_Values': 'Australia',
+        'Notes': 'Other country',
+        'Field_Type': 'Newly Added'
     },
     {
         'Oracle_Table': 'SCH_CO_20.CO_EMPLOYMENT_PERIOD',
@@ -162,6 +342,18 @@ mappings = [
         'Sample_Values': '202301, 202401',
         'Notes': 'Filter: Only contacts for active employers',
         'Field_Type': 'Filter Criteria'
+    },
+    {
+        'Oracle_Table': 'SCH_CO_20.CO_FIELD_OFFICER_VISIT',
+        'Oracle_Field': 'ASSIGNED_TO',
+        'Oracle_Type': 'VARCHAR2',
+        'SF_Object': 'Contact',
+        'SF_Field': 'FieldOfficerAllocated__c',
+        'SF_Type': 'Lookup(User)',
+        'Transformation': 'Subquery: Latest ASSIGNED_TO from CO_FIELD_OFFICER_VISIT via CO_FIELD_VISIT_MEMBERS. Mapped to Salesforce User ID via Officer Code',
+        'Sample_Values': 'MICHAELD, JEREMYT, PETERGIU',
+        'Notes': '28 contacts (0.1% of 50K) have Field Officer assignments. 47 total officers (11 active, 36 inactive)',
+        'Field_Type': 'Newly Added'
     }
 ]
 
@@ -185,7 +377,10 @@ print("\n[2/6] Generating Sample Records (10 contacts)...")
 
 sample_query = """
 SELECT External_Id__c, FirstName, LastName, Email, 
-       MobilePhone, OtherPhone, Birthdate, AccountId
+       Phone, MobilePhone, OtherPhone, Birthdate, AccountId,
+       LanguagePreference__c, Title, GenderIdentity,
+       MailingStreet, MailingCity, MailingState, MailingPostalCode, MailingCountry,
+       OtherStreet, OtherCity, OtherState, OtherPostalCode, OtherCountry
 FROM Contact
 WHERE External_Id__c != null
 ORDER BY CreatedDate DESC
@@ -205,14 +400,28 @@ with open(sample_file, 'w', encoding='utf-8') as f:
     for i, rec in enumerate(samples['records'], 1):
         f.write(f"SAMPLE RECORD {i}\n")
         f.write("-"*80 + "\n")
-        f.write(f"External_Id__c:      {rec.get('External_Id__c', 'NULL')}\n")
-        f.write(f"FirstName:           {rec.get('FirstName', 'NULL')}\n")
-        f.write(f"LastName:            {rec.get('LastName', 'NULL')}\n")
-        f.write(f"Email:               {rec.get('Email', 'NULL')}\n")
-        f.write(f"MobilePhone:         {rec.get('MobilePhone', 'NULL')}\n")
-        f.write(f"OtherPhone:          {rec.get('OtherPhone', 'NULL')}\n")
-        f.write(f"Birthdate:           {rec.get('Birthdate', 'NULL')}\n")
-        f.write(f"AccountId:           {rec.get('AccountId', 'NULL')}\n")
+        f.write(f"External_Id__c:        {rec.get('External_Id__c', 'NULL')}\n")
+        f.write(f"FirstName:             {rec.get('FirstName', 'NULL')}\n")
+        f.write(f"LastName:              {rec.get('LastName', 'NULL')}\n")
+        f.write(f"Email:                 {rec.get('Email', 'NULL')}\n")
+        f.write(f"Phone:                 {rec.get('Phone', 'NULL')}\n")
+        f.write(f"MobilePhone:           {rec.get('MobilePhone', 'NULL')}\n")
+        f.write(f"OtherPhone:            {rec.get('OtherPhone', 'NULL')}\n")
+        f.write(f"Birthdate:             {rec.get('Birthdate', 'NULL')}\n")
+        f.write(f"LanguagePreference__c: {rec.get('LanguagePreference__c', 'NULL')}\n")
+        f.write(f"Title:                 {rec.get('Title', 'NULL')}\n")
+        f.write(f"GenderIdentity:        {rec.get('GenderIdentity', 'NULL')}\n")
+        f.write(f"MailingStreet:         {rec.get('MailingStreet', 'NULL')}\n")
+        f.write(f"MailingCity:           {rec.get('MailingCity', 'NULL')}\n")
+        f.write(f"MailingState:          {rec.get('MailingState', 'NULL')}\n")
+        f.write(f"MailingPostalCode:     {rec.get('MailingPostalCode', 'NULL')}\n")
+        f.write(f"MailingCountry:        {rec.get('MailingCountry', 'NULL')}\n")
+        f.write(f"OtherStreet:           {rec.get('OtherStreet', 'NULL')}\n")
+        f.write(f"OtherCity:             {rec.get('OtherCity', 'NULL')}\n")
+        f.write(f"OtherState:            {rec.get('OtherState', 'NULL')}\n")
+        f.write(f"OtherPostalCode:       {rec.get('OtherPostalCode', 'NULL')}\n")
+        f.write(f"OtherCountry:          {rec.get('OtherCountry', 'NULL')}\n")
+        f.write(f"AccountId:             {rec.get('AccountId', 'NULL')}\n")
         f.write("\n")
 
 print(f"   ✅ Saved: {sample_file}")

@@ -1,0 +1,85 @@
+Subject: Request: Field Officer Email Addresses (47 users)
+
+Hi Cherie,
+
+We're setting up Field Officer user accounts in Salesforce SIT and need the actual email addresses for the 47 Field Officers.
+
+Currently using temporary emails like:
+- michael.docherty.sit2@leaveplus.com.au
+- jeremy.tobin.sit2@leaveplus.com.au
+
+But would like to update them with their real email addresses if available.
+
+**Field Officers we need emails for:**
+
+ACTIVE (11 officers):
+- MICHAELD - Michael Docherty
+- JEREMYT - Jeremy Tobin
+- WJS - Jude Fernando
+- AH - Anthony Harrington
+- BAW - Brenda Wright
+- CA - Coula Andipas
+- CAA - Craig Anderson
+- CJW - Colin Wilkinson
+- DMG - Daryl Gibbs
+- EUH - Ehsan Haque
+- GJC - Geoff Concuis
+
+INACTIVE (36 officers):
+- PETERGIU - Peter Giudice
+- ANDREWMAC - Andrew Mackenzie
+- MATTMCPH - Matt McPhee
+- ANDREWMA - Andrew Mathers
+- MATTHEW.TIBBINS - Matthew Tibbins
+- BENEDICTC - Benedict Chng
+- ANDREWRI - Andrew Richardson
+- VIDYAIYE - Vidya Iyengar
+- GKM - Geoff Mackie
+- JA - Joseph Antonius
+- JJO - John O'Dea
+- JPG - Janet Steele
+- JY - June Yi
+- JZ - Jim Zois
+- KJK - Kevin Kristensen
+- MM - Marie Martin
+- MOB - Michael O'Brien
+- NJ - Nikolina Josifoska
+- NZ - Nicholas Ziogas
+- PBB - Peter Bland
+- RJK - Reg Kurce
+- RS - Rukesh Sadhai
+- RVO - Robert Occhipinti
+- SHM - Susan Haslam
+- SJJ - Sara Jenkins
+- SJR - Steve Ryan
+- SN - Suzi Navosailagi
+- VA - Vicki Ayton
+- VPL - Vic Lepore
+- ANDREW.MACKENZIE - Andrew Mackenzie
+- MATT.MCPHEE - Matt McPhee
+- MICHAEL.DOCHERTY - Michael Docherty
+- AM1 - Andrew Mathers
+- JT - Jeremy Tobin
+- MRD - Matthew Ridgwell-Daly
+- VEENALOYA - Veena Loya
+
+**What we need:**
+A simple list with:
+- Officer Code (e.g., MICHAELD)
+- Officer Name
+- Email Address
+
+Format can be CSV, Excel, or just a Teams/email list.
+
+**Why we need this:**
+- Salesforce records will show proper contact information
+- Notifications/emails will go to correct recipients
+- Better for production readiness
+
+**Current workaround:**
+If emails aren't available, we'll keep the generated .sit2 addresses (they work fine for testing).
+
+Please let me know if you can provide these or who would be the best person to ask.
+
+Thanks!
+Anvesh
